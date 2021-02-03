@@ -9,7 +9,7 @@ function WinApi{
         Author: Fors1k
     .LINK
         https://www.cyberforum.ru/post14941731.html
-    .ROLE
+    .COMPONENT
         1
     #>
     PARAM(
