@@ -9,6 +9,8 @@ function WinApi{
         Author: Fors1k
     .LINK
         https://www.cyberforum.ru/post14941731.html
+    .ROLE
+        1
     #>
     PARAM(
         [Parameter(Position = 0, Mandatory = $True )]
@@ -54,4 +56,27 @@ function WinApi{
         @{[char]'W'=-1;;[char]'A'=-2}[$method[-1]]+$CharSet))
     }
     END{$w32.CreateType()::$method.Invoke($Params)}
+}
+function Struct{
+    PARAM(
+        [Parameter(Position = 0, Mandatory = $True )]
+        [String]$typeName,
+        [Parameter(Position = 1, Mandatory = $True )]
+        [Object[]]$data
+    )
+    for($i=0;$i-lt$data.count){
+    [Type[]]$fieldTypes+=$data[$i++]
+    [String[]]$fieldNames+=$data[$i++]}
+    $type = [Reflection.Emit.AssemblyBuilder]::
+    DefineDynamicAssembly('w32A','Run').
+    DefineDynamicModule('w32M').DefineType(
+    $typeName,"Public,SequentialLayout",[ValueType])
+    for($i = 0; $i -lt $fieldTypes.Length; $i++){$field=
+    $type.DefineField($fieldNames[$i],$fieldTypes[$i],"Public")
+    if($fieldTypes[$i]-eq[string]){$field.SetCustomAttribute(
+    [System.Reflection.Emit.CustomAttributeBuilder]::new(
+    [System.Runtime.InteropServices.MarshalAsAttribute].
+    GetConstructor([Runtime.InteropServices.UnmanagedType]),
+    [Runtime.InteropServices.UnmanagedType]"LPWStr"))}}
+    [void]$type.CreateType()
 }
