@@ -107,8 +107,5 @@ function Struct{
             }
         }
     }
-    END{
-        [void]$type.CreateType()
-        #$type
-    }  
+    END{[void]$type.CreateType()}  
 }
