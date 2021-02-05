@@ -59,24 +59,56 @@ function WinApi{
 }
 function Struct{
     PARAM(
-        [Parameter(Position = 0, Mandatory = $True )]
+        [Parameter(ValueFromPipeline  =  $True)]
+        [String]$Attributes,
+        [Parameter(Position=0,Mandatory=$True )]
         [String]$typeName,
-        [Parameter(Position = 1, Mandatory = $True )]
+        [Parameter(Position=1,Mandatory=$True )]
         [Object[]]$data
     )
-    for($i=0;$i-lt$data.count){
-    [Type[]]$fieldTypes+=$data[$i++]
-    [String[]]$fieldNames+=$data[$i++]}
-    $type = [Reflection.Emit.AssemblyBuilder]::
-    DefineDynamicAssembly('w32A','Run').
-    DefineDynamicModule('w32M').DefineType(
-    $typeName,"Public,SequentialLayout",[ValueType])
-    for($i = 0; $i -lt $fieldTypes.Length; $i++){$field=
-    $type.DefineField($fieldNames[$i],$fieldTypes[$i],"Public")
-    if($fieldTypes[$i]-eq[string]){$field.SetCustomAttribute(
-    [System.Reflection.Emit.CustomAttributeBuilder]::new(
-    [System.Runtime.InteropServices.MarshalAsAttribute].
-    GetConstructor([Runtime.InteropServices.UnmanagedType]),
-    [Runtime.InteropServices.UnmanagedType]"LPWStr"))}}
-    [void]$type.CreateType()
+    Process{
+        for($i=0;$i-lt$data.count){
+            [Type[]]$fieldTypes+=$data[$i++]
+            [String[]]$fieldNames+=$data[$i++]
+        }
+        $StructAttributes = 'Class,Public,Sealed,
+                             BeforeFieldInit'
+        if($Attributes){
+            $layout,$charSet=$Attributes-split";"
+        }
+        else{
+            $layout,$charSet='Sequential','Auto'
+            
+        }
+        $StructAttributes = $StructAttributes-bor
+        [Reflection.TypeAttributes]::"$layout`Layout"-bor
+        [Reflection.TypeAttributes]::"$charSet`Class"
+    
+        $type = [Reflection.Emit.AssemblyBuilder]::
+        DefineDynamicAssembly('w32A','Run').
+        DefineDynamicModule('w32M').
+        DefineType(
+            $typeName,
+            $StructAttributes,
+            [ValueType]
+        )
+        for($i = 0; $i -lt $fieldTypes.Length; $i++){
+            $arr=$fieldNames[$i]-split";"
+            $field=$type.DefineField($arr[0],$fieldTypes[$i],"Public")
+            if($fieldNames[$i]-match";"){
+                $field.SetCustomAttribute(
+                    [Reflection.Emit.CustomAttributeBuilder]::new(
+                        [Runtime.InteropServices.MarshalAsAttribute].GetConstructors()[0], 
+                        [Runtime.InteropServices.UnmanagedType]::($arr[1]), 
+                        [Runtime.InteropServices.MarshalAsAttribute].GetField('SizeConst'), 
+                        [int]$arr[2]
+                    )
+                )
+            }
+        }
+    }
+    END{
+        [void]$type.CreateType()
+        #$type
+    }  
 }
