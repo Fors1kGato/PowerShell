@@ -66,7 +66,7 @@ function Struct{
         [Parameter(Position=1,Mandatory=$True )]
         [Object[]]$data
     )
-    Process{
+    PROCESS{
         for($i=0;$i-lt$data.count){
             [Type[]]$fieldTypes+=$data[$i++]
             [String[]]$fieldNames+=$data[$i++]
