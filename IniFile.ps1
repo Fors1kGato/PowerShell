@@ -1,4 +1,6 @@
 function Import-IniOperator{
+if(('IniFile' -as [Type]))
+{return}
 Add-Type -typed @'
 Imports System
 Imports System.Text
