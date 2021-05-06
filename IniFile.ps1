@@ -1,3 +1,4 @@
+function Import-IniOperator{
 Add-Type -typed @'
 Imports System
 Imports System.Text
@@ -294,3 +295,4 @@ Friend NotInheritable Class NativeMethods
     End Sub
 End Class
 '@ -Language VisualBasic
+}
