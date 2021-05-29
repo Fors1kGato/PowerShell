@@ -39,7 +39,6 @@ function Out-IniFile($InputObject, $FilePath){
                 else {
                     Add-Content -Path $outFile -Value "$j=$($InputObject[$i][$j])"
                 }
-
             }
             Add-Content -Path $outFile -Value ""
         }
