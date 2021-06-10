@@ -1,0 +1,1 @@
+function ggc{write-host 721}
