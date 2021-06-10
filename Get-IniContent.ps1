@@ -1,4 +1,4 @@
- function Get-IniContent ($filePath){
+ function Get-IniContent ($filePath){ 
     $ini = @{}
     switch -regex -file $FilePath{
         '^\[(.+)\]' # Section
